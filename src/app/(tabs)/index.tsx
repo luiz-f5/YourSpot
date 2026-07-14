@@ -1,17 +1,17 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Center } from "@/components/ui/center";
 import { Button, ButtonText } from "@/components/ui/button";
-import sendMessage from "../services/sendMessage";
+import Container from "@/components/custom/Container";
+import sendMessage from "@/src/services/sendMessage";
 
 export default function App() {
   const [message, setMessage] = useState<string | undefined>("");
   return (
-    <View style={styles.container}>
+    <Container>
       <Card className="w-100" size="default">
         <Center>
           <Card className="w-90" size="default">
@@ -34,7 +34,8 @@ export default function App() {
         </Center>
         <Center>
           <Button
-            className="bg-zinc-800 w-[8em]"
+            variant="outline"
+            className="w-[8em]"
             onPress={() => {
               const msg = sendMessage() as unknown as string;
               setMessage(msg);
@@ -46,16 +47,6 @@ export default function App() {
           </Button>
         </Center>
       </Card>
-    </View>
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0f0f0f",
-    color: "white",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
