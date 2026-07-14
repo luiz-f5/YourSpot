@@ -3,11 +3,16 @@
   "compilerOptions": {
     "strict": true,
     "jsx": "react-native",
-    "moduleResolver": "node",
     "paths": {
       "@/*": [
         "./*"
       ]
     }
-  }
+  },
+   "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "global.d.ts",
+    "declarations.d.ts"
+  ]
 }
