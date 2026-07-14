@@ -50,7 +50,7 @@ export function SwipeHint() {
       }}
     >
       <View className="flex-1 justify-center items-center">
-        <View className="w-[3px] h-full bg-black/20 rounded-full" />
+        <View className="w-[3px] h-full bg-green/20 rounded-full" />
       </View>
     </Animated.View>
   );

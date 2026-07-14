@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
-import { useSession } from "@/src/ctx";
+import { useSession } from "@/services/auth/session";
 import { Link } from "expo-router";
 
 export default function RegisterScreen() {

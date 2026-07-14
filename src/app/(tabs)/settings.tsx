@@ -2,7 +2,7 @@ import Container from "@/components/custom/Container";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
-import { useSession } from "@/src/ctx";
+import { useSession } from "@/services/auth/session";
 
 export default function SettingsPage() {
   const { signOut, session } = useSession();

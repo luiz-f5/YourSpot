@@ -13,41 +13,29 @@ export default function MyTabs() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          headerShown: false,
           tabBarIcon: () => <Icon color="cyan" as={Home} size="lg" />,
-          headerTitleAlign: "center",
-          headerTintColor: "whitesmoke",
-          headerStyle: { backgroundColor: "#494e57" },
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Settings",
+          headerShown: false,
           tabBarIcon: () => <Icon color="cyan" as={SettingsIcon} size="lg" />,
-          headerTitleAlign: "center",
-          headerTintColor: "whitesmoke",
-          headerStyle: { backgroundColor: "#494e57" },
         }}
       />
       <Tabs.Screen
         name="about"
         options={{
-          title: "About",
+          headerShown: false,
           tabBarIcon: () => <Icon color="cyan" as={InfoIcon} size="lg" />,
-          headerTitleAlign: "center",
-          headerTintColor: "whitesmoke",
-          headerStyle: { backgroundColor: "#494e57" },
         }}
       />
       <Tabs.Screen
         name="(drawer)"
         options={{
-          title: "Menu",
+          headerShown: false,
           tabBarIcon: () => <Icon color="cyan" as={MenuIcon} size="lg" />,
-          headerTitleAlign: "center",
-          headerTintColor: "whitesmoke",
-          headerStyle: { backgroundColor: "#494e57" },
         }}
       />
     </Tabs>

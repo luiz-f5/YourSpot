@@ -6,7 +6,7 @@ import { Text } from "@/components/ui/text";
 import { Center } from "@/components/ui/center";
 import { Button, ButtonText } from "@/components/ui/button";
 import Container from "@/components/custom/Container";
-import sendMessage from "@/src/services/sendMessage";
+import sendMessage from "@/services/apis/lorem/methods/sendMessage";
 
 export default function App() {
   const [message, setMessage] = useState<string | undefined>("");
