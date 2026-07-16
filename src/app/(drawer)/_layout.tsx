@@ -4,16 +4,20 @@ export default function MyDrawer() {
   return (
     <Drawer
       screenOptions={{
-        headerLeft: () => null,
-        swipeEnabled: true,
-        headerShown: false,
+        headerTitle: "Menu",
+        headerTintColor: "yellow",
+        headerTitleAlign : "center",
+        headerStyle: {backgroundColor: "#494e57"}
       }}
     >
       <Drawer.Screen
-        name="index"
+        name="(tabs)"
         options={{
           drawerLabel: "Home",
-          title: "overview",
+          drawerLabelStyle: {
+            color: "green",
+          },
+          
         }}
       />
     </Drawer>

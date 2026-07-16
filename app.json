@@ -24,6 +24,11 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "extra": {
+      "AUTH_EMAIL": "admin@email.com",
+      "AUTH_PASSWORD": "123456",
+      "AUTH_SECRET": "abc123"
+    },
     "plugins": [
       [
         "expo-router",
