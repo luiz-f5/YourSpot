@@ -5,6 +5,7 @@ import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
 import { useSession } from "@/services/auth/session";
+import { registerUser } from "@/services/auth/authFunctions";
 import { Link } from "expo-router";
 
 export default function RegisterScreen() {
@@ -37,7 +38,8 @@ export default function RegisterScreen() {
           onPress={async () => {
             try {
               if (!email || !password) throw new Error("Preencha todos os campos");
-              await signIn(email, password);
+              await registerUser(email, password);
+              await signIn(email, password); 
               setError(null);
             } catch (err: any) {
               setError(err.message || "Erro ao registrar");

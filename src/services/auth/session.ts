@@ -1,5 +1,5 @@
-import AuthContext from "./ctxAuth";
 import { useContext } from "react";
+import AuthContext from "./ctxAuth";
 
 export function useSession() {
   const value = useContext(AuthContext);

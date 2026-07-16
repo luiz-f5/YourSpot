@@ -25,13 +25,11 @@ function RootNavigator() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!!session}>
+      {session ? (
         <Stack.Screen name="(drawer)" />
-      </Stack.Protected>
-
-      <Stack.Protected guard={!session}>
+      ) : (
         <Stack.Screen name="(auth)" />
-      </Stack.Protected>
+      )}
     </Stack>
   );
 }
