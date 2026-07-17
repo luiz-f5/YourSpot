@@ -1,17 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Container from "@/components/custom/Container";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
 import { useSession } from "@/services/auth/session";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 
 export default function LoginScreen() {
-  const { signIn } = useSession();
+  const { signIn, session } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session) {
+      router.replace("/(drawer)");
+    }
+  }, [session]);
 
   return (
     <Container>
@@ -38,6 +44,7 @@ export default function LoginScreen() {
             try {
               await signIn(email, password);
               setError(null);
+              router.replace("/(drawer)");
             } catch (err: any) {
               setError(err.message || "Erro ao fazer login");
             }

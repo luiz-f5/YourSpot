@@ -1,46 +1,40 @@
-import React from 'react' 
-import Constants from "expo-constants";
-import AuthContext from './ctxAuth';
-import {useState, useEffect} from 'react'
-import { getStorageItem, setStorageItem, deleteStorageItem } from '../database/storage';
-
+import React, { useState, useEffect } from "react";
+import AuthContext from "./ctxAuth";
+import { AuthContextType } from "@/src/types/authContext.types";
+import { signInFunction, signOutFunction, initDatabase, insertDummyUser } from "./authFunctions";
+import { Platform } from "react-native";
+import * as SecureStore from "expo-secure-store";
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<string | null>(null);
   const [isLoading, setLoading] = useState(true);
-
+//TODO: remove dummy login for production
   useEffect(() => {
-    getStorageItem("session").then((value) => {
-      setSession(value);
+    initDatabase();
+    insertDummyUser("hi@hi.com", "1234");
+
+    if (Platform.OS === "web") {
+      setSession(localStorage.getItem("session"));
       setLoading(false);
-    });
+    } else {
+      SecureStore.getItemAsync("session").then((value) => {
+        setSession(value);
+        setLoading(false);
+      });
+    }
   }, []);
 
-async function signIn(email: string, password: string) {
-    if (!email || !password) throw new Error("Preencha todos os campos");
-    const secret = Constants.expoConfig?.extra?.AUTH_SECRET || "fallbackToken";
-    const dummyEmail = Constants.expoConfig?.extra?.AUTH_EMAIL || null;
-    const dummyPassword = Constants.expoConfig?.extra?.AUTH_PASSWORD || null;
-
-    if (dummyEmail && dummyPassword) {
-      if (email !== dummyEmail || password !== dummyPassword) {
-        throw new Error("Credenciais inválidas");
-      }
-    }
-
-    await setStorageItem("session", secret);
-    setSession(secret);
+  async function signIn(email: string, password: string) {
+    const token = await signInFunction(email, password);
+    setSession(token);
   }
 
-   async function signOut() {
-    await deleteStorageItem("session");
+  async function signOut() {
+    await signOutFunction();
     setSession(null);
   }
 
+  const value: AuthContextType = { signIn, signOut, session, isLoading };
 
-  return (
-    <AuthContext.Provider value={{ signIn, signOut, session, isLoading}}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

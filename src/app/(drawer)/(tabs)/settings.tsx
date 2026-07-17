@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { useSession } from "@/services/auth/session";
+import { router } from "expo-router";
 
 export default function SettingsPage() {
   const { signOut, session } = useSession();
@@ -18,7 +19,12 @@ export default function SettingsPage() {
           </Text>
         )}
 
-        <Button onPress={signOut}>
+        <Button
+          onPress={async () => {
+            await signOut();
+            router.replace("/(auth)/login");
+          }}
+        >
           <ButtonText>Logout</ButtonText>
         </Button>
       </Card>
