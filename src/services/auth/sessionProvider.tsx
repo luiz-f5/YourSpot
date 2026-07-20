@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from "react";
 import AuthContext from "./ctxAuth";
 import { AuthContextType } from "@/src/types/authContext.types";
-import { signInFunction, signOutFunction, initDatabase, insertDummyUser } from "./authFunctions";
+import { signInFunction, signOutFunction } from "./authFunctions";
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<string | null>(null);
   const [isLoading, setLoading] = useState(true);
-//TODO: remove dummy login for production
-  useEffect(() => {
-    initDatabase();
-    insertDummyUser("hi@hi.com", "1234");
 
+  useEffect(() => {
     if (Platform.OS === "web") {
       setSession(localStorage.getItem("session"));
       setLoading(false);

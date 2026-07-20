@@ -25,9 +25,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "AUTH_EMAIL": "admin@email.com",
-      "AUTH_PASSWORD": "123456",
-      "AUTH_SECRET": "abc123"
+      "API_URL": "http://10.0.0.195:3000"
     },
     "plugins": [
       [

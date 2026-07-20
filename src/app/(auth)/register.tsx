@@ -6,7 +6,7 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
 import { useSession } from "@/services/auth/session";
 import { registerUser } from "@/services/auth/authFunctions";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 
 export default function RegisterScreen() {
   const { signIn } = useSession();
@@ -41,6 +41,7 @@ export default function RegisterScreen() {
               await registerUser(email, password);
               await signIn(email, password); 
               setError(null);
+              router.replace("/(drawer)");
             } catch (err: any) {
               setError(err.message || "Erro ao registrar");
             }
