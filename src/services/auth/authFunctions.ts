@@ -1,8 +1,6 @@
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import Constants from "expo-constants";
-
-const API_URL = Constants.expoConfig?.extra?.API_URL;
+import { API_URL } from "@/constants/api";
 
 export async function registerUser(email: string, password: string) {
   const res = await fetch(`${API_URL}/auth/register`, {
@@ -27,20 +25,10 @@ export async function signInFunction(email: string, password: string): Promise<s
     body: JSON.stringify({ email, password }),
   });
 
-  if (!res.ok) {
-    throw new Error("Credenciais inválidas");
-  }
+  if (!res.ok) throw new Error("Credenciais inválidas");
 
   const data = await res.json();
-  const token = data.access_token;
-
-  if (Platform.OS === "web") {
-    localStorage.setItem("session", token);
-  } else {
-    await SecureStore.setItemAsync("session", token);
-  }
-
-  return token;
+  return data.access_token;
 }
 
 export async function signOutFunction(): Promise<void> {
