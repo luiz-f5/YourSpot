@@ -2,32 +2,28 @@ import React, { useState, useEffect } from "react";
 import AuthContext from "./ctxAuth";
 import { AuthContextType } from "@/src/types/authContext.types";
 import { signInFunction, signOutFunction } from "./authFunctions";
-import { Platform } from "react-native";
-import * as SecureStore from "expo-secure-store";
+import { saveSession, removeSession, getSession } from "./session";
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<string | null>(null);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (Platform.OS === "web") {
-      setSession(localStorage.getItem("session"));
+    getSession().then((value) => {
+      setSession(value);
       setLoading(false);
-    } else {
-      SecureStore.getItemAsync("session").then((value) => {
-        setSession(value);
-        setLoading(false);
-      });
-    }
+    });
   }, []);
 
   async function signIn(email: string, password: string) {
     const token = await signInFunction(email, password);
+    await saveSession(token);
     setSession(token);
   }
 
   async function signOut() {
     await signOutFunction();
+    await removeSession();
     setSession(null);
   }
 

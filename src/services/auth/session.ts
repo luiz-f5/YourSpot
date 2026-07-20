@@ -16,3 +16,19 @@ export async function getSession(): Promise<string | null> {
     return await SecureStore.getItemAsync("session");
   }
 }
+
+export async function saveSession(token: string) {
+  if (Platform.OS === "web") {
+    localStorage.setItem("session", token);
+  } else {
+    await SecureStore.setItemAsync("session", token);
+  }
+}
+
+export async function removeSession() {
+  if (Platform.OS === "web") {
+    localStorage.removeItem("session");
+  } else {
+    await SecureStore.deleteItemAsync("session");
+  }
+}
