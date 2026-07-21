@@ -1,5 +1,4 @@
- import {SettingsIcon, InfoIcon} from "@/components/ui/icon";
-import { Home } from "lucide-react-native";
+import { Home, Settings, Info } from "lucide-react-native";
 
 export const tabsConstants = [
     {
@@ -10,11 +9,11 @@ export const tabsConstants = [
     {
       name: "settings",
       title: "Settings",
-      component: SettingsIcon
+      component: Settings
     },
     {
       name: "about",
       title: "About",
-      component: InfoIcon
+      component: Info
     }
   ]
