@@ -1,10 +1,15 @@
-import { Home, Settings, Info } from "lucide-react-native";
+import { Home, Settings, Info, UserRound } from "lucide-react-native";
 
 export const tabsConstants = [
     {
-      name : "index",
+      name: "index",
       title: "Home",
       component: Home 
+    },
+    {
+      name: "contacts",
+      title: "Contatos",
+      component: UserRound 
     },
     {
       name: "settings",
@@ -16,4 +21,4 @@ export const tabsConstants = [
       title: "About",
       component: Info
     }
-  ]
+]
