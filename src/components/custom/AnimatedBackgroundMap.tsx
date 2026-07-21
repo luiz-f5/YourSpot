@@ -5,7 +5,6 @@ import Svg, { Path, Circle, Rect, G } from "react-native-svg";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
-const CARD_WIDTH = Math.min(windowWidth * 0.88, 380);
 
 export default function AnimatedBackgroundMap()  {
   const animValue = useRef(new Animated.Value(0)).current;

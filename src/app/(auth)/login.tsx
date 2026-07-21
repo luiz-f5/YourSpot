@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from "react";
-import ContainerAuth from "@/components/custom/Container";
-import { Card } from "@/components/ui/card";
-import { Text } from "@/components/ui/text";
+import { View, ActivityIndicator } from "react-native";
 import { Button, ButtonText } from "@/components/ui/button";
-import { Input, InputField } from "@/components/ui/input";
+import { Icon } from "@/components/ui/icon";
+import { Mail, Lock, LogIn } from "lucide-react-native";
 import { useSession } from "@/services/auth/session";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import AnimatedBackgroundMap from "@/src/components/custom/AnimatedBackgroundMap";
+import HeaderAuth from "@/src/components/custom/auth/HeaderAuth";
+import CardAuth from "@/src/components/custom/auth/CardAuth";
+import InputWrapperAuth from "@/src/components/custom/auth/InputWrapperAuth";
+import FooterLinkAuth from "@/src/components/custom/auth/FooterLinkAuth";
+import Copyright from "@/src/components/custom/auth/Copyright";
 
 export default function LoginScreen() {
   const { signIn, session } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (session) {
@@ -20,46 +25,91 @@ export default function LoginScreen() {
     }
   }, [session]);
 
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Preencha todos os campos para continuar.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      await signIn(email, password);
+      router.replace("/(drawer)");
+    } catch (err: any) {
+      setError(err.message || "Erro ao fazer login. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <ContainerAuth>
-      <AnimatedBackgroundMap/>
-      <Card className="p-6">
-        <Text className="text-yellow-300 text-center mb-4">Login</Text>
+    <View className="flex-1 bg-[#F2F2EC] justify-center items-center px-5 py-5 overflow-hidden">
+      {/* MAPA ANIMADO AO FUNDO */}
+      <AnimatedBackgroundMap />
 
-        <Input className="mb-3">
-          <InputField placeholder="Email" value={email} onChangeText={setEmail} />
-        </Input>
+      {/* LOGO / CABEÇALHO */}
+      <HeaderAuth subtitle="Sua cidade em boas mãos: reporte problemas com apenas uma foto." />
 
-        <Input className="mb-4">
-          <InputField
-            placeholder="Senha"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-        </Input>
+      {/* CARD FLUTUANTE DE LOGIN */}
+      <CardAuth
+        title="Entrar na Conta"
+        subtitle="Insira suas credenciais para acessar a plataforma"
+      >
+        {/* INPUT EMAIL */}
+        <InputWrapperAuth
+          icon={Mail}
+          placeholder="E-mail"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+        />
 
-        {error && <Text className="text-red-500 text-center mb-4">{error}</Text>}
+        {/* INPUT SENHA */}
+        <InputWrapperAuth
+          icon={Lock}
+          placeholder="Senha"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
 
+        {/* MENSAGEM DE ERRO */}
+        {error && (
+          <View className="bg-red-50 rounded-xl p-2.5 border border-red-300 mb-3.5">
+            <Text className="text-red-600 text-xs text-center font-semibold">{error}</Text>
+          </View>
+        )}
+
+        {/* BOTÃO ENTRAR */}
         <Button
-          onPress={async () => {
-            try {
-              await signIn(email, password);
-              setError(null);
-              router.replace("/(drawer)");
-            } catch (err: any) {
-              setError(err.message || "Erro ao fazer login");
-            }
-          }}
-          className="mb-4"
+          onPress={handleLogin}
+          disabled={loading}
+          className="bg-zinc-900 rounded-2xl h-12 justify-center items-center flex-row shadow-sm mt-1 active:bg-zinc-800"
         >
-          <ButtonText>Entrar</ButtonText>
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" size="small" />
+          ) : (
+            <>
+              <Icon as={LogIn} size="sm" className="text-white mr-2" />
+              <ButtonText className="text-white font-semibold text-sm">Entrar</ButtonText>
+            </>
+          )}
         </Button>
 
-        <Link href="/(auth)/register">
-          <Text className="text-blue-400 text-center">Registrar</Text>
-        </Link>
-      </Card>
-    </ContainerAuth>
+        {/* LINK CADASTRAR */}
+        <FooterLinkAuth
+          promptText="Ainda não possui conta? "
+          linkText="Criar Conta"
+          href="/(auth)/register"
+        />
+      </CardAuth>
+
+      {/* RODAPÉ */}
+      <Copyright />
+    </View>
   );
 }
+
+// Pequena declaração local de Text para suportar o erro sem quebrar
+import { Text } from "@/components/ui/text";
