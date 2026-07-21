@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Container from "@/components/custom/Container";
+import ContainerAuth from "@/components/custom/Container";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Input, InputField } from "@/components/ui/input";
 import { useSession } from "@/services/auth/session";
 import { registerUser } from "@/services/auth/authFunctions";
 import { Link, router } from "expo-router";
+import AnimatedBackgroundMap from "@/src/components/custom/AnimatedBackgroundMap";
 
 export default function RegisterScreen() {
   const { signIn } = useSession();
@@ -15,7 +16,8 @@ export default function RegisterScreen() {
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <Container>
+    <ContainerAuth>
+      <AnimatedBackgroundMap/>
       <Card className="p-6">
         <Text className="text-yellow-300 text-center mb-4">Registrar</Text>
 
@@ -55,6 +57,6 @@ export default function RegisterScreen() {
           <Text className="text-blue-400 text-center">Login</Text>
         </Link>
       </Card>
-    </Container>
+    </ContainerAuth>
   );
 }

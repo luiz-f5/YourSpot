@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import Container from "@/components/custom/Container";
+import ContainerAuth from "@/components/custom/Container";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
 import { useSession } from "@/services/auth/session";
 import { Link, router } from "expo-router";
+import AnimatedBackgroundMap from "@/src/components/custom/AnimatedBackgroundMap";
 
 export default function LoginScreen() {
   const { signIn, session } = useSession();
@@ -20,7 +21,8 @@ export default function LoginScreen() {
   }, [session]);
 
   return (
-    <Container>
+    <ContainerAuth>
+      <AnimatedBackgroundMap/>
       <Card className="p-6">
         <Text className="text-yellow-300 text-center mb-4">Login</Text>
 
@@ -58,6 +60,6 @@ export default function LoginScreen() {
           <Text className="text-blue-400 text-center">Registrar</Text>
         </Link>
       </Card>
-    </Container>
+    </ContainerAuth>
   );
 }

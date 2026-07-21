@@ -58,3 +58,5 @@ const HomeMenuAnimated = memo(({visible, onClose} : {visible: boolean, onClose: 
     </Animated.View>
     )
 })
+
+export default HomeMenuAnimated;
