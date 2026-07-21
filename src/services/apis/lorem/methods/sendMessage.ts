@@ -1,8 +1,8 @@
-import api from "../lorem";
+import loremApi from "../lorem";
 
 const sendMessage: () => Promise<any> = async () => {
   try {
-    const response = await api.get("/lorem");
+    const response = await loremApi.get("/lorem");
     const data: any = await response.data;
     return data;
   } catch (err) {

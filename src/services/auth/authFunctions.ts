@@ -1,37 +1,36 @@
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import Constants from "expo-constants";
-
-const API_URL = Constants.expoConfig?.extra?.API_URL;
+import nestApi from "../apis/nest/nest";
 
 export async function registerUser(email: string, password: string) {
-  const res = await fetch(`${API_URL}/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
+  
+  const res = await nestApi.post("/auth/register", {email: email, password: password}, {
+    validateStatus: () => true
+  })
 
-  if (!res.ok) {
-    throw new Error("Erro ao registrar usuário");
+ const resOk = res.status >= 200 && res.status< 300;
+  
+  if (!resOk) {
+    throw new Error("Credenciais inválidas");
   }
 
-  return await res.json();
+  return await res;
 }
 
 export async function signInFunction(email: string, password: string): Promise<string> {
   if (!email || !password) throw new Error("Preencha todos os campos");
 
-  const res = await fetch(`${API_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
+ const res = await nestApi.post("/auth/login", {email: email, password: password }, {
+  validateStatus: () => true
+ })
 
-  if (!res.ok) {
+ const resOk = res.status >= 200 && res.status< 300;
+  
+  if (!resOk) {
     throw new Error("Credenciais inválidas");
   }
 
-  const data = await res.json();
+  const data = await res.data;
   const token = data.access_token;
 
   if (Platform.OS === "web") {
