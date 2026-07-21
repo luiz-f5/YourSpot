@@ -1,7 +1,8 @@
 import { View } from "react-native";
 import { ReactNode } from "react";
-
-export default function Container({ children }: { children: ReactNode }) {
-  return <View className="flex-1 bg-neutral-900 text-white items-center justify-center" >{children}</View>;
+import {Platform} from 'react-native'
+export default function ContainerAuth({ children }: { children: ReactNode }) {
+  return <View className={`flex-1 bg-[#F2F2EC] px-20 items-center justify-center overflow-hidden pt-${Platform.OS == "ios" ? "40" : "20"}`} >{children}</View> 
+     
 }
 
