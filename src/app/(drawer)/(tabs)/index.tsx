@@ -3,7 +3,6 @@ import {
   View,
   TouchableOpacity,
   Animated as RNAnimated,
-  Platform,
   Dimensions,
   Modal,
   ActivityIndicator,
@@ -331,7 +330,7 @@ export default function App() {
           style={{ left: (Dimensions.get("window").width / 2) - 32 }}
           onPress={() => setShowHomeMenu(!showHomeMenu)}
         >
-          <BlurView intensity={70} tint="light" className={`w-16 h-16 rounded-full justify-center items-center border border-white/80 shadow-lg overflow-hidden bg-white/65 ${showHomeMenu ? 'scale-95 bg-zinc-100/85' : ''}`}>
+          <BlurView intensity={70} tint="light" className={`w-16 h-16 rounded-full justify-center items-center border border-white/80 shadow-lg overflow-hidden bg-white/65 ${showHomeMenu ? 'bg-zinc-100/85' : ''}`} style={showHomeMenu ? { transform: [{ scale: 0.95 }] } : undefined}>
             <Icon as={Home} size="xl" className="text-zinc-900" />
           </BlurView>
         </TouchableOpacity>

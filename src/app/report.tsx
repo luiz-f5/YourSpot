@@ -3,7 +3,6 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  Platform,
   TextInput,
   Image,
   ActivityIndicator
@@ -127,7 +126,11 @@ export default function ReportPage() {
       await AsyncStorage.setItem("@user_reports", JSON.stringify(reports));
 
       alert("Denúncia registrada com sucesso!");
-      router.back();
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace("/(drawer)/(tabs)");
+      }
     } catch (error) {
       alert("Erro ao salvar denúncia.");
     } finally {
@@ -139,7 +142,7 @@ export default function ReportPage() {
     <View className="flex-1 bg-[#F9F9F6] pt-12">
       {/* CABEÇALHO */}
       <View className="px-6 mb-4">
-        <TouchableOpacity activeOpacity={0.7} onPress={() => router.back()} className="flex-row items-center mb-3 self-start">
+        <TouchableOpacity activeOpacity={0.7} onPress={() => router.canGoBack() ? router.back() : router.replace("/(drawer)/(tabs)")} className="flex-row items-center mb-3 self-start">
           <Icon as={ArrowLeft} size="md" className="text-zinc-900" />
           <Text className="text-zinc-900 font-semibold ml-1.5">Voltar</Text>
         </TouchableOpacity>

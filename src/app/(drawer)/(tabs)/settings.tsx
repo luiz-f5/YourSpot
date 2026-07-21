@@ -22,7 +22,7 @@ export default function SettingsPage() {
       {/* BOTÃO VOLTAR */}
       <TouchableOpacity
         activeOpacity={0.7}
-        onPress={() => router.back()}
+        onPress={() => router.canGoBack() ? router.back() : router.replace("/(drawer)/(tabs)")}
         className="mb-8 p-2 -ml-2 self-start"
       >
         <Text className="text-[#1C1C1E] font-medium text-base">← Voltar</Text>

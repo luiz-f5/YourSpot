@@ -1,5 +1,4 @@
 import { Tabs } from "expo-router";
-import { Icon } from "@/components/ui/icon";
 import { tabsConstants } from "@/src/constants/RouterLayouts";
 
 export default function MyTabs() {
@@ -34,9 +33,10 @@ export default function MyTabs() {
           options={{
             headerShown: false,
             title: tab.title,
-            tabBarIcon: ({ color }) => (
-              <Icon color={color} as={tab.component} size="md" />
-            ),
+            tabBarIcon: ({ color }) => {
+              const IconComponent = tab.component;
+              return <IconComponent color={color} size={18} />;
+            },
           }}
         />
       ))}

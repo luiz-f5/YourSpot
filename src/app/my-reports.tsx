@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Platform, Image, TouchableOpacity } from "react-native";
+import { View, ScrollView, Image, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
@@ -35,7 +35,7 @@ export default function MyReportsScreen() {
     <View className="flex-1 bg-[#F9F9F6] pt-12">
       {/* CABEÇALHO */}
       <View className="px-6 mb-4">
-        <TouchableOpacity activeOpacity={0.7} onPress={() => router.back()} className="flex-row items-center mb-3 self-start">
+        <TouchableOpacity activeOpacity={0.7} onPress={() => router.canGoBack() ? router.back() : router.replace("/(drawer)/(tabs)")} className="flex-row items-center mb-3 self-start">
           <Icon as={ArrowLeft} size="md" className="text-zinc-900" />
           <Text className="text-zinc-900 font-semibold ml-1.5">Voltar</Text>
         </TouchableOpacity>

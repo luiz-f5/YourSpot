@@ -13,7 +13,7 @@ export default function AboutPage() {
       {/* Botão de Voltar */}
       <TouchableOpacity
         activeOpacity={0.7}
-        onPress={() => router.back()}
+        onPress={() => router.canGoBack() ? router.back() : router.replace("/(drawer)/(tabs)")}
         className="mb-8 py-2 self-start"
       >
         <Text className="text-zinc-900 font-medium text-base">← Voltar</Text>
