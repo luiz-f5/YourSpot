@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { View, Platform } from "react-native";
+import { View, Platform, Linking } from "react-native";
 
 let WebViewComponent: any = null;
 if (Platform.OS !== "web") {
@@ -66,7 +66,7 @@ export default function LeafletMap({ latitude, longitude, onLocationChanged }: L
       <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
       <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
       <script>
-        var map = L.map('map', { zoomControl: false }).setView([${latitude}, ${longitude}], 15);
+        var map = L.map('map', { zoomControl: false, attributionControl: false }).setView([${latitude}, ${longitude}], 15);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
         var marker = L.marker([${latitude}, ${longitude}]).addTo(map);
 
@@ -94,6 +94,13 @@ export default function LeafletMap({ latitude, longitude, onLocationChanged }: L
           domStorageEnabled={true}
           javaScriptEnabled={true}
           onMessage={handleMapMessage}
+          onShouldStartLoadWithRequest={(request: any) => {
+            if (request.url.startsWith("http") && request.url !== "about:blank") {
+              Linking.openURL(request.url).catch(() => {});
+              return false;
+            }
+            return true;
+          }}
         />
       )}
     </View>

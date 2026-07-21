@@ -1,7 +1,10 @@
 import { Tabs } from "expo-router";
 import { tabsConstants } from "@/src/constants/RouterLayouts";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function MyTabs() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
@@ -11,8 +14,8 @@ export default function MyTabs() {
           backgroundColor: "#FFFFFF",
           borderTopColor: "#E5E5DE",
           borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
           paddingTop: 8,
           elevation: 4,
           shadowColor: "#000",
