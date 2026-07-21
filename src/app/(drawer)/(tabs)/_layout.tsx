@@ -1,10 +1,8 @@
 import { Tabs } from "expo-router";
-import { Icon, } from "@/components/ui/icon";
-import { Home } from "lucide-react-native";
+import { Icon } from "@/components/ui/icon";
 import { tabsConstants } from "@/src/constants/RouterLayouts"; 
 export default function MyTabs() {
 
-  
   return (
     <Tabs
       screenOptions={{

@@ -13,7 +13,7 @@ import "@/styles/global.css";
 export default function RootLayout() {
   return (
     <SessionProvider>
-      <GluestackUIProvider mode="dark">
+      <GluestackUIProvider mode="light">
         <RootNavigator />
       </GluestackUIProvider>
     </SessionProvider>
@@ -30,6 +30,7 @@ function RootNavigator() {
       ) : (
         <Stack.Screen name="(auth)" />
       )}
+      <Stack.Screen name="+not-found"/>
     </Stack>
   );
 }

@@ -1,7 +1,7 @@
 import { create } from "axios";
 
-const api = create({
+const loremApi = create({
   baseURL: "https://lorem-api.com/api",
 });
 
-export default api;
+export default loremApi;
