@@ -1,6 +1,6 @@
 import React from "react";
 import { View, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
@@ -8,13 +8,12 @@ import { Icon, InfoIcon } from "@/components/ui/icon";
 import { LogOut } from "lucide-react-native";
 import { useSession } from "@/services/auth/session";
 
-export default function SettingsPage() {
-  const router = useRouter();
+export default function SettingsScreen() {
+  const navigation = useNavigation<any>();
   const { signOut, session } = useSession();
 
   const handleSignOut = async () => {
     await signOut();
-    router.replace("/(auth)/login");
   };
 
   return (
@@ -22,7 +21,7 @@ export default function SettingsPage() {
       {/* BOTÃO VOLTAR */}
       <TouchableOpacity
         activeOpacity={0.7}
-        onPress={() => router.canGoBack() ? router.back() : router.replace("/(drawer)/(tabs)")}
+        onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate("Home")}
         className="mb-8 p-2 -ml-2 self-start"
       >
         <Text className="text-[#1C1C1E] font-medium text-base">← Voltar</Text>
@@ -42,7 +41,7 @@ export default function SettingsPage() {
         {/* BOTÃO DO ABOUT ENCAPSULADO */}
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => router.push("/about")}
+          onPress={() => navigation.navigate("About")}
           className="flex-row items-center bg-[#F4F4F0] p-4 rounded-[16px] border border-transparent active:border-[#E5E5DE] mb-3"
         >
           <View className="mr-3 bg-white p-2 rounded-xl border border-[#E5E5DE]">

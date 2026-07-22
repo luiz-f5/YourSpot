@@ -15,11 +15,28 @@ interface LeafletMapProps {
 export default function LeafletMap({ latitude, longitude, onLocationChanged }: LeafletMapProps) {
   const webViewRef = useRef<any>(null);
 
+  // Centering map function
+  const goToCurrentLocation = () => {
+    if (webViewRef.current) {
+      webViewRef.current.injectJavaScript(`
+        if (typeof map !== 'undefined' && typeof marker !== 'undefined') {
+          var latlng = [${latitude}, ${longitude}];
+          map.flyTo(latlng, 16, { animate: true, duration: 1.5 });
+          marker.setLatLng(latlng);
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'LOCATION_CHANGED', latitude: ${latitude}, longitude: ${longitude} }));
+        }
+        true;
+      `);
+    }
+  };
+
   const handleMapMessage = (event: { nativeEvent: { data: string } }) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
       if (data.type === "LOCATION_CHANGED") {
         onLocationChanged(data.latitude, data.longitude);
+      } else if (data.type === "REQUEST_GPS") {
+        goToCurrentLocation();
       }
     } catch (e) {}
   };
@@ -47,18 +64,53 @@ export default function LeafletMap({ latitude, longitude, onLocationChanged }: L
       <style>
         html, body, #map { height: 100%; margin: 0; padding: 0; background-color: #E5E5DE; }
         .leaflet-control-geocoder {
-          position: fixed !important; top: 35px !important; left: 50% !important; transform: translateX(-50%) !important;
+          position: fixed !important; top: 65px !important; left: 50% !important; transform: translateX(-50%) !important;
           width: 88% !important; max-width: 440px !important; margin: 0 !important; border-radius: 16px !important;
           box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important; border: 1px solid rgba(255,255,255,0.6) !important;
-          overflow: hidden; background: rgba(255, 255, 255, 0.75) !important; backdrop-filter: blur(20px) !important;
+          background: rgba(255, 255, 255, 0.92) !important; backdrop-filter: blur(20px) !important;
           -webkit-backdrop-filter: blur(20px) !important; z-index: 99999 !important;
         }
-        .leaflet-control-geocoder-form { width: 100% !important; display: flex !important; }
+        .leaflet-control-geocoder-form {
+          width: 100% !important;
+          display: flex !important;
+          flex-direction: row !important;
+          align-items: center !important;
+        }
         .leaflet-control-geocoder-form input {
-          font-size: 16px !important; padding: 14px 16px !important; width: 100% !important; border: none !important; outline: none !important;
+          font-size: 16px !important; padding: 14px 12px 14px 16px !important; flex: 1 !important; border: none !important; outline: none !important;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: transparent !important;
         }
         .leaflet-control-geocoder-icon { display: none !important; }
+
+        .gps-btn {
+          background: transparent !important; border: none !important; outline: none !important;
+          width: 44px !important; height: 44px !important; display: flex !important;
+          justify-content: center !important; align-items: center !important; cursor: pointer !important;
+          padding: 10px !important; margin-right: 4px !important; color: #1C1C1E !important; opacity: 0.85 !important;
+        }
+        .gps-btn:active { opacity: 0.5 !important; }
+
+        .leaflet-control-geocoder-alternatives {
+          margin: 0 !important; padding: 0 !important; list-style: none !important;
+          background: rgba(255, 255, 255, 0.95) !important; max-height: 200px !important; overflow-y: auto !important;
+          border-top: 1px solid rgba(0,0,0,0.08) !important;
+          border-bottom-left-radius: 16px !important; border-bottom-right-radius: 16px !important;
+        }
+        .leaflet-control-geocoder-alternatives li {
+          padding: 12px 16px !important; cursor: pointer !important; font-size: 14px !important;
+          border-bottom: 1px solid rgba(0,0,0,0.04) !important;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          color: #1C1C1E !important;
+        }
+        .leaflet-control-geocoder-alternatives li a {
+          color: #1C1C1E !important; text-decoration: none !important;
+        }
+        .leaflet-control-geocoder-alternatives li:last-child {
+          border-bottom: none !important;
+        }
+        .leaflet-control-geocoder-alternatives li:active, .leaflet-control-geocoder-alternatives .leaflet-control-geocoder-selected {
+          background-color: rgba(0,0,0,0.05) !important;
+        }
       </style>
     </head>
     <body>
@@ -70,7 +122,7 @@ export default function LeafletMap({ latitude, longitude, onLocationChanged }: L
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
         var marker = L.marker([${latitude}, ${longitude}]).addTo(map);
 
-        L.Control.geocoder({
+        var geocoderControl = L.Control.geocoder({
           defaultMarkGeocode: false,
           placeholder: "📍 Buscar localização...",
           collapsed: false
@@ -78,6 +130,79 @@ export default function LeafletMap({ latitude, longitude, onLocationChanged }: L
           var center = e.geocode.center; map.flyTo(center, 16, { animate: true, duration: 1.5 }); marker.setLatLng(center);
           window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'LOCATION_CHANGED', latitude: center.lat, longitude: center.lng }));
         }).addTo(map);
+
+        // Autocomplete inteligente em tempo real e Botão de GPS
+        setTimeout(function() {
+          var input = document.querySelector('.leaflet-control-geocoder-form input');
+          var alternativesContainer = document.querySelector('.leaflet-control-geocoder-alternatives');
+          var geocoderService = geocoderControl.getGeocoder();
+          var debounceTimeout = null;
+
+          if (input && alternativesContainer && geocoderService) {
+            // Criação do botão de GPS
+            var gpsBtn = document.createElement('button');
+            gpsBtn.type = 'button';
+            gpsBtn.className = 'gps-btn';
+            gpsBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>';
+
+            var form = document.querySelector('.leaflet-control-geocoder-form');
+            if (form) {
+              form.appendChild(gpsBtn);
+            }
+
+            gpsBtn.addEventListener('click', function(ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'REQUEST_GPS' }));
+            });
+
+            // Lógica do Autocomplete
+            input.addEventListener('input', function(e) {
+              var query = e.target.value;
+
+              if (debounceTimeout) clearTimeout(debounceTimeout);
+
+              if (query.trim().length >= 3) {
+                debounceTimeout = setTimeout(function() {
+                  geocoderService.geocode(query, function(results) {
+                    while (alternativesContainer.firstChild) {
+                      alternativesContainer.removeChild(alternativesContainer.firstChild);
+                    }
+
+                    if (results && results.length > 0) {
+                      alternativesContainer.style.display = 'block';
+                      results.forEach(function(result) {
+                        var li = document.createElement('li');
+                        li.innerText = result.name;
+                        li.addEventListener('click', function(ev) {
+                          ev.stopPropagation();
+                          var center = result.center;
+                          map.flyTo(center, 16, { animate: true, duration: 1.5 });
+                          marker.setLatLng(center);
+                          window.ReactNativeWebView.postMessage(JSON.stringify({
+                            type: 'LOCATION_CHANGED',
+                            latitude: center.lat,
+                            longitude: center.lng
+                          }));
+                          input.value = result.name;
+                          alternativesContainer.style.display = 'none';
+                        });
+                        alternativesContainer.appendChild(li);
+                      });
+                    } else {
+                      alternativesContainer.style.display = 'none';
+                    }
+                  });
+                }, 400);
+              } else {
+                while (alternativesContainer.firstChild) {
+                  alternativesContainer.removeChild(alternativesContainer.firstChild);
+                }
+                alternativesContainer.style.display = 'none';
+              }
+            });
+          }
+        }, 500);
       </script>
     </body>
     </html>

@@ -7,7 +7,7 @@ import {
   Image,
   ActivityIndicator
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Icon } from "@/components/ui/icon";
@@ -16,8 +16,8 @@ import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function ReportPage() {
-  const router = useRouter();
+export default function ReportScreen() {
+  const navigation = useNavigation<any>();
 
   const problemsList = [
     "Buraco na via",
@@ -126,10 +126,10 @@ export default function ReportPage() {
       await AsyncStorage.setItem("@user_reports", JSON.stringify(reports));
 
       alert("Denúncia registrada com sucesso!");
-      if (router.canGoBack()) {
-        router.back();
+      if (navigation.canGoBack()) {
+        navigation.goBack();
       } else {
-        router.replace("/(drawer)/(tabs)");
+        navigation.navigate("Home");
       }
     } catch (error) {
       alert("Erro ao salvar denúncia.");
@@ -142,7 +142,7 @@ export default function ReportPage() {
     <View className="flex-1 bg-[#F9F9F6] pt-12">
       {/* CABEÇALHO */}
       <View className="px-6 mb-4">
-        <TouchableOpacity activeOpacity={0.7} onPress={() => router.canGoBack() ? router.back() : router.replace("/(drawer)/(tabs)")} className="flex-row items-center mb-3 self-start">
+        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate("Home")} className="flex-row items-center mb-3 self-start">
           <Icon as={ArrowLeft} size="md" className="text-zinc-900" />
           <Text className="text-zinc-900 font-semibold ml-1.5">Voltar</Text>
         </TouchableOpacity>

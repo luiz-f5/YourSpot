@@ -1,19 +1,19 @@
 import React from "react";
 import { View, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 
-export default function AboutPage() {
-  const router = useRouter();
+export default function AboutScreen() {
+  const navigation = useNavigation<any>();
 
   return (
     <View className="flex-1 bg-[#F9F9F6] p-6 pt-12">
       {/* Botão de Voltar */}
       <TouchableOpacity
         activeOpacity={0.7}
-        onPress={() => router.canGoBack() ? router.back() : router.replace("/(drawer)/(tabs)")}
+        onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate("Home")}
         className="mb-8 py-2 self-start"
       >
         <Text className="text-zinc-900 font-medium text-base">← Voltar</Text>

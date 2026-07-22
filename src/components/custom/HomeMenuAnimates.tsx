@@ -4,7 +4,8 @@ import Animated, { useSharedValue, withTiming, Easing, useAnimatedStyle, runOnJS
 import { BlurView } from "expo-blur";
 import { Text } from "@/components/ui/text";
 import { Icon } from "@/components/ui/icon";
-import { MapPin, Info, LogOut } from "lucide-react-native";
+import { MapPin, Info, LogOut, UserRound, Settings } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const iosSmoothCurve = Easing.bezier(0.16, 1, 0.3, 1);
 
@@ -21,6 +22,7 @@ const HomeMenuAnimated = memo(({
   onSignOut,
   onNavigate
 }: HomeMenuAnimatedProps) => {
+  const insets = useSafeAreaInsets();
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(20);
   const [isRendering, setIsRendering] = useState(false);
@@ -38,7 +40,7 @@ const HomeMenuAnimated = memo(({
     }
   }, [visible]);
 
-  const handleOptionPress = (optionName: string, route: string) => {
+  const handleOptionPress = (_optionName: string, route: string) => {
     onClose();
     setTimeout(() => onNavigate(route), 100);
   };
@@ -53,14 +55,16 @@ const HomeMenuAnimated = memo(({
 
   return (
     <Animated.View
-      style={animatedStyle}
-      className="absolute bottom-[120px] w-[220px] align-center items-center z-50 self-center"
+      style={[animatedStyle, { bottom: 95 + insets.bottom }]}
+      className="absolute w-[220px] align-center items-center z-50 self-center"
     >
       <BlurView intensity={80} tint="light" className="w-full rounded-2xl border-1.5 border-white/70 shadow-lg overflow-hidden bg-white/75">
+
+        {/* MEUS LOCAIS */}
         <TouchableOpacity
           activeOpacity={0.6}
-          className="py-3.5 px-5 w-full flex-row items-center justify-start"
-          onPress={() => handleOptionPress('📍 Meus Locais', "/my-reports")}
+          className="py-3 px-5 w-full flex-row items-center justify-start"
+          onPress={() => handleOptionPress('📍 Meus Locais', "MyReports")}
         >
           <Icon as={MapPin} size="md" className="text-zinc-900 mr-3" />
           <Text className="text-[15px] font-semibold text-zinc-900 tracking-tight">Meus Locais</Text>
@@ -68,10 +72,35 @@ const HomeMenuAnimated = memo(({
 
         <View className="h-[1px] bg-black/10 mx-3" />
 
+        {/* CONTATOS */}
         <TouchableOpacity
           activeOpacity={0.6}
-          className="py-3.5 px-5 w-full flex-row items-center justify-start"
-          onPress={() => handleOptionPress('ℹ️ Sobre o App', "/about")}
+          className="py-3 px-5 w-full flex-row items-center justify-start"
+          onPress={() => handleOptionPress('👥 Contatos', "Contacts")}
+        >
+          <Icon as={UserRound} size="md" className="text-zinc-900 mr-3" />
+          <Text className="text-[15px] font-semibold text-zinc-900 tracking-tight">Contatos</Text>
+        </TouchableOpacity>
+
+        <View className="h-[1px] bg-black/10 mx-3" />
+
+        {/* CONFIGURAÇÕES */}
+        <TouchableOpacity
+          activeOpacity={0.6}
+          className="py-3 px-5 w-full flex-row items-center justify-start"
+          onPress={() => handleOptionPress('⚙️ Configurações', "Settings")}
+        >
+          <Icon as={Settings} size="md" className="text-zinc-900 mr-3" />
+          <Text className="text-[15px] font-semibold text-zinc-900 tracking-tight">Configurações</Text>
+        </TouchableOpacity>
+
+        <View className="h-[1px] bg-black/10 mx-3" />
+
+        {/* SOBRE O APP */}
+        <TouchableOpacity
+          activeOpacity={0.6}
+          className="py-3 px-5 w-full flex-row items-center justify-start"
+          onPress={() => handleOptionPress('ℹ️ Sobre o App', "About")}
         >
           <Icon as={Info} size="md" className="text-zinc-900 mr-3" />
           <Text className="text-[15px] font-semibold text-zinc-900 tracking-tight">Sobre o App</Text>
@@ -79,9 +108,10 @@ const HomeMenuAnimated = memo(({
 
         <View className="h-[1px] bg-black/10 mx-3" />
 
+        {/* SAIR DA CONTA */}
         <TouchableOpacity
           activeOpacity={0.6}
-          className="py-3.5 px-5 w-full flex-row items-center justify-start bg-red-500/10"
+          className="py-3 px-5 w-full flex-row items-center justify-start bg-red-500/10"
           onPress={() => {
             onClose();
             onSignOut();

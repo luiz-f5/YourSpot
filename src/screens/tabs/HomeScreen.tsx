@@ -8,7 +8,8 @@ import {
   ActivityIndicator,
   PanResponder
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
@@ -64,13 +65,14 @@ const MOCK_DENUNCIAS = [
   },
 ];
 
-export default function App() {
+export default function HomeScreen() {
   const { signOut } = useSession();
   const { region, setRegion, errorMsg, loading } = useLocation();
   const [showHomeMenu, setShowHomeMenu] = useState<boolean>(false);
   const [showCameraPopup, setShowCameraPopup] = useState<boolean>(false);
   const [isCardOpen, setIsCardOpen] = useState<boolean>(false);
-  const router = useRouter();
+  const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
 
   // Estados do Tour Guiado
   const [tourVisible, setTourVisible] = useState<boolean>(false);
@@ -118,7 +120,6 @@ export default function App() {
 
   const handleSignOut = async () => {
     await signOut();
-    router.replace("/(auth)/login");
   };
 
   const toggleCard = () => {
@@ -261,7 +262,7 @@ export default function App() {
           latitude={region.latitude}
           longitude={region.longitude}
           denuncias={MOCK_DENUNCIAS}
-          onNewDenuncia={() => router.push("/report")}
+          onNewDenuncia={() => navigation.navigate("Report")}
           panGesture={panGesture}
           translateX={translateX}
         />
@@ -274,7 +275,7 @@ export default function App() {
           responderCamera={responderCamera}
           isDraggingSettings={isDraggingSettings}
           isDraggingCamera={isDraggingCamera}
-          onSettingsPress={() => router.push("/settings")}
+          onSettingsPress={() => navigation.navigate("Settings")}
           onCameraPress={() => setShowCameraPopup(true)}
         />
 
@@ -298,7 +299,7 @@ export default function App() {
           visible={showHomeMenu}
           onClose={() => setShowHomeMenu(false)}
           onSignOut={handleSignOut}
-          onNavigate={(route) => router.push(route as any)}
+          onNavigate={(route) => navigation.navigate(route)}
         />
 
         {/* POP-UP MODAL */}
@@ -313,7 +314,7 @@ export default function App() {
                     <TouchableOpacity className="flex-1 py-3 rounded-2xl items-center mx-1.5 bg-zinc-400/20" onPress={() => setShowCameraPopup(false)}>
                       <Text className="text-sm font-semibold text-zinc-700">Cancelar</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity className="flex-1 py-3 rounded-2xl items-center mx-1.5 bg-zinc-900 active:bg-zinc-800" onPress={() => { setShowCameraPopup(false); router.push("/report"); }}>
+                    <TouchableOpacity className="flex-1 py-3 rounded-2xl items-center mx-1.5 bg-zinc-900 active:bg-zinc-800" onPress={() => { setShowCameraPopup(false); navigation.navigate("Report"); }}>
                       <Text className="text-sm font-semibold text-white">Prosseguir</Text>
                     </TouchableOpacity>
                   </View>
@@ -326,8 +327,8 @@ export default function App() {
         {/* BOTÃO HOME */}
         <TouchableOpacity
           activeOpacity={0.8}
-          className="absolute bottom-10 z-50 self-center"
-          style={{ left: (Dimensions.get("window").width / 2) - 32 }}
+          className="absolute z-50 self-center"
+          style={{ left: (Dimensions.get("window").width / 2) - 32, bottom: 20 + insets.bottom }}
           onPress={() => setShowHomeMenu(!showHomeMenu)}
         >
           <BlurView intensity={70} tint="light" className={`w-16 h-16 rounded-full justify-center items-center border border-white/80 shadow-lg overflow-hidden bg-white/65 ${showHomeMenu ? 'bg-zinc-100/85' : ''}`} style={showHomeMenu ? { transform: [{ scale: 0.95 }] } : undefined}>

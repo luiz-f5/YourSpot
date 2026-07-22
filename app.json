@@ -25,25 +25,10 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      [
-        "expo-router",
-        {
-          "headers": {
-            "Cross-Origin-Embedder-Policy": "credentialless",
-            "Cross-Origin-Opener-Policy": "same-origin"
-          }
-        }
-      ],
       "expo-secure-store",
       "expo-sqlite"
     ],
     "extra": {
-      "router": {
-        "headers": {
-          "Cross-Origin-Embedder-Policy": "credentialless",
-          "Cross-Origin-Opener-Policy": "same-origin"
-        }
-      },
       "eas": {
         "projectId": "32374fda-b198-4482-a64f-09dd258d63ea"
       }

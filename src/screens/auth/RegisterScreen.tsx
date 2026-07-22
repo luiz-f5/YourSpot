@@ -1,31 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { Mail, Lock, LogIn } from "lucide-react-native";
+import { Mail, Lock, UserPlus } from "lucide-react-native";
 import { useSession } from "@/services/auth/session";
-import { router } from "expo-router";
+import { registerUser } from "@/services/auth/authFunctions";
 import AnimatedBackgroundMap from "@/src/components/custom/AnimatedBackgroundMap";
 import HeaderAuth from "@/src/components/custom/auth/HeaderAuth";
 import CardAuth from "@/src/components/custom/auth/CardAuth";
 import InputWrapperAuth from "@/src/components/custom/auth/InputWrapperAuth";
 import FooterLinkAuth from "@/src/components/custom/auth/FooterLinkAuth";
 import Copyright from "@/src/components/custom/auth/Copyright";
+import { Text } from "@/components/ui/text";
 
-export default function LoginScreen() {
-  const { signIn, session } = useSession();
+export default function RegisterScreen() {
+  const { signIn } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (session) {
-      router.replace("/(drawer)");
-    }
-  }, [session]);
-
-  const handleLogin = async () => {
+  const handleRegister = async () => {
     if (!email || !password) {
       setError("Preencha todos os campos para continuar.");
       return;
@@ -34,10 +29,10 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       setError(null);
+      await registerUser(email, password);
       await signIn(email, password);
-      router.replace("/(drawer)");
     } catch (err: any) {
-      setError(err.message || "Erro ao fazer login. Tente novamente.");
+      setError(err.message || "Erro ao registrar usuário.");
     } finally {
       setLoading(false);
     }
@@ -49,12 +44,12 @@ export default function LoginScreen() {
       <AnimatedBackgroundMap />
 
       {/* LOGO / CABEÇALHO */}
-      <HeaderAuth subtitle="Sua cidade em boas mãos: reporte problemas com apenas uma foto." />
+      <HeaderAuth subtitle="Faça parte da mudança: reporte problemas e colabore com a sua comunidade." />
 
-      {/* CARD FLUTUANTE DE LOGIN */}
+      {/* CARD FLUTUANTE DE REGISTRO */}
       <CardAuth
-        title="Entrar na Conta"
-        subtitle="Insira suas credenciais para acessar a plataforma"
+        title="Criar uma Conta"
+        subtitle="Crie seu perfil para começar a reportar ocorrências"
       >
         {/* INPUT EMAIL */}
         <InputWrapperAuth
@@ -81,9 +76,9 @@ export default function LoginScreen() {
           </View>
         )}
 
-        {/* BOTÃO ENTRAR */}
+        {/* BOTÃO CADASTRAR */}
         <Button
-          onPress={handleLogin}
+          onPress={handleRegister}
           disabled={loading}
           className="bg-zinc-900 rounded-2xl h-12 justify-center items-center flex-row shadow-sm mt-1 active:bg-zinc-800"
         >
@@ -91,17 +86,17 @@ export default function LoginScreen() {
             <ActivityIndicator color="#FFFFFF" size="small" />
           ) : (
             <>
-              <Icon as={LogIn} size="sm" className="text-white mr-2" />
-              <ButtonText className="text-white font-semibold text-sm">Entrar</ButtonText>
+              <Icon as={UserPlus} size="sm" className="text-white mr-2" />
+              <ButtonText className="text-white font-semibold text-sm">Criar Conta</ButtonText>
             </>
           )}
         </Button>
 
-        {/* LINK CADASTRAR */}
+        {/* LINK VOLTAR LOGIN */}
         <FooterLinkAuth
-          promptText="Ainda não possui conta? "
-          linkText="Criar Conta"
-          href="/(auth)/register"
+          promptText="Já possui uma conta? "
+          linkText="Entrar"
+          href="Login"
         />
       </CardAuth>
 
@@ -110,6 +105,3 @@ export default function LoginScreen() {
     </View>
   );
 }
-
-// Pequena declaração local de Text para suportar o erro sem quebrar
-import { Text } from "@/components/ui/text";

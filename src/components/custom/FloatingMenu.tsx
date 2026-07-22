@@ -1,41 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, TouchableOpacity } from "react-native";
 import { Text } from "@/components/ui/text";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface FloatingMenuProps {
-  onOpenSpotModal: () => void;
   onOpenContactModal: () => void;
 }
 
-export default function FloatingMenu({ onOpenSpotModal, onOpenContactModal }: FloatingMenuProps) {
-  const [showOptions, setShowOptions] = useState(false);
+export default function FloatingMenu({ onOpenContactModal }: FloatingMenuProps) {
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={{ position: "absolute", bottom: 30, right: 30 }}>
-      {showOptions && (
-        <View style={{ marginBottom: 10 }}>
-          <TouchableOpacity
-            className="bg-secondary p-2 rounded-full mb-2"
-            onPress={() => {
-              setShowOptions(false);
-              onOpenSpotModal();
-            }}
-          >
-            <Text className="text-foreground text-center">Criar Spot</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            className="bg-secondary p-2 rounded-full mb-2"
-            onPress={() => {
-              setShowOptions(false);
-              onOpenContactModal();
-            }}
-          >
-            <Text className="text-foreground text-center">Criar Contato</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
+    <View style={{ position: "absolute", bottom: 20 + insets.bottom, right: 30 }}>
       <TouchableOpacity
         style={{
           backgroundColor: "#f5c518",
@@ -45,7 +21,7 @@ export default function FloatingMenu({ onOpenSpotModal, onOpenContactModal }: Fl
           justifyContent: "center",
           alignItems: "center",
         }}
-        onPress={() => setShowOptions(!showOptions)}
+        onPress={onOpenContactModal}
       >
         <Text style={{ fontSize: 30, color: "#fff" }}>+</Text>
       </TouchableOpacity>
