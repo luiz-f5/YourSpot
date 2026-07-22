@@ -14,10 +14,11 @@ import { Icon } from "@/components/ui/icon";
 import { Check, ArrowLeft, RefreshCw, Send, MapPin } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useReports } from "@/hooks/useReports";
 
 export default function ReportScreen() {
   const navigation = useNavigation<any>();
+  const { addReport } = useReports();
 
   const problemsList = [
     "Buraco na via",
@@ -110,20 +111,12 @@ export default function ReportScreen() {
 
     setIsSubmitting(true);
     try {
-      const newReport = {
-        id: Date.now().toString(),
+      await addReport({
         problems: selectedProblems,
         address,
         observation,
         image: capturedImage,
-        date: new Date().toLocaleDateString("pt-BR")
-      };
-
-      const existingData = await AsyncStorage.getItem("@user_reports");
-      const reports = existingData ? JSON.parse(existingData) : [];
-      reports.unshift(newReport);
-
-      await AsyncStorage.setItem("@user_reports", JSON.stringify(reports));
+      });
 
       alert("Denúncia registrada com sucesso!");
       if (navigation.canGoBack()) {
@@ -131,8 +124,8 @@ export default function ReportScreen() {
       } else {
         navigation.navigate("Home");
       }
-    } catch (error) {
-      alert("Erro ao salvar denúncia.");
+    } catch (error: any) {
+      alert(error.message || "Erro ao salvar denúncia.");
     } finally {
       setIsSubmitting(false);
     }
