@@ -29,7 +29,11 @@ export default function SettingsScreen() {
     }
     const interval = setInterval(() => {
       const now = Date.now();
-      const diff = expiry - now;
+      let normExpiry = expiry;
+      if (normExpiry < 10000000000) {
+        normExpiry = normExpiry * 1000;
+      }
+      const diff = normExpiry - now;
       if (diff <= 0) {
         setTimeRemaining("Sessão expirada");
         clearInterval(interval);

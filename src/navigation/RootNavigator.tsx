@@ -22,9 +22,14 @@ export default function RootNavigator() {
     if (!session) return;
 
     const checkExpiry = async () => {
-      const expiry = await getSessionExpiry();
-      if (expiry && Date.now() >= expiry) {
-        await signOut();
+      let expiry = await getSessionExpiry();
+      if (expiry) {
+        if (expiry < 10000000000) {
+          expiry = expiry * 1000;
+        }
+        if (Date.now() >= expiry) {
+          await signOut();
+        }
       }
     };
 

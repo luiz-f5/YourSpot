@@ -41,7 +41,13 @@ export async function signInFunction(email: string, password: string): Promise<s
   }
 
   if (data.expiry_timestamp) {
-    await saveSessionExpiry(Number(data.expiry_timestamp));
+    let expiryNum = Number(data.expiry_timestamp);
+    if (expiryNum < 10000000000) {
+      expiryNum = expiryNum * 1000;
+    }
+    await saveSessionExpiry(expiryNum);
+  } else {
+    await removeSessionExpiry();
   }
 
   return token;

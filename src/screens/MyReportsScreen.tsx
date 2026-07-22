@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui/icon";
 import { ArrowLeft, MapPin, Calendar, Trash2, Mail, X } from "lucide-react-native";
 import { useReports } from "@/hooks/useReports";
 import { useContacts } from "@/hooks/useContacts";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import * as MailComposer from "expo-mail-composer";
 
 export default function MyReportsScreen() {
@@ -44,18 +44,24 @@ export default function MyReportsScreen() {
     }
   };
 
-  async function writeBase64ToFile(base64: string, filename: string) {
+  async function prepareImageAttachment(imageUri: string, filename: string) {
     try {
-      let cleanBase64 = base64;
-      if (base64.includes(";base64,")) {
-        cleanBase64 = base64.split(";base64,")[1];
+      const docDir = FileSystem.documentDirectory || "";
+      const path = `${docDir}${filename}`;
+
+      if (imageUri.startsWith("http://") || imageUri.startsWith("https://")) {
+        const result = await FileSystem.downloadAsync(imageUri, path);
+        return result.uri;
+      } else {
+        let cleanBase64 = imageUri;
+        if (imageUri.includes(";base64,")) {
+          cleanBase64 = imageUri.split(";base64,")[1];
+        }
+        await FileSystem.writeAsStringAsync(path, cleanBase64, { encoding: FileSystem.EncodingType.Base64 });
+        return path.startsWith("file://") ? path : `file://${path}`;
       }
-      const cacheDir = (FileSystem as any).cacheDirectory || "";
-      const path = `${cacheDir}${filename}`;
-      await (FileSystem as any).writeAsStringAsync(path, cleanBase64, { encoding: (FileSystem as any).EncodingType.Base64 });
-      return path.startsWith("file://") ? path : `file://${path}`;
     } catch (err) {
-      console.warn("Erro ao salvar imagem localmente:", err);
+      console.warn("Erro ao preparar anexo de imagem:", err);
       return null;
     }
   }
@@ -88,7 +94,7 @@ export default function MyReportsScreen() {
       const attachments: string[] = [];
       if (selectedReport.image) {
         const filename = `report-${selectedReport.id || Date.now()}.jpg`;
-        const path = await writeBase64ToFile(selectedReport.image, filename);
+        const path = await prepareImageAttachment(selectedReport.image, filename);
         if (path) {
           attachments.push(path);
         }
