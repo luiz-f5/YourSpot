@@ -26,6 +26,7 @@ export default function EditContactModal({
       <TouchableOpacity
         activeOpacity={1}
         onPressOut={() => setSelectedContact(null)}
+        className="flex-1, bg-[#F9F9F9] justify-center items-center"
         style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" }}
       >
         <View style={{ width: "90%", borderRadius: 12, padding: 20 }} className="bg-card">
