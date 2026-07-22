@@ -21,9 +21,11 @@
         "expo": "~57.0.8",
         "expo-blur": "^57.0.2",
         "expo-constants": "~57.0.7",
+        "expo-file-system": "^57.0.1",
         "expo-image-picker": "~57.0.6",
         "expo-linking": "~57.0.4",
         "expo-location": "~57.0.6",
+        "expo-mail-composer": "~57.0.1",
         "expo-secure-store": "~57.0.1",
         "expo-sqlite": "~57.0.1",
         "expo-system-ui": "~57.0.1",
@@ -832,6 +834,8 @@
     "expo-linking": ["expo-linking@57.0.4", "", { "dependencies": { "expo-constants": "~57.0.7", "invariant": "^2.2.4" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-e1alfHNJdywIfJkCuKMc6M3hBfAGPd2gKMeF/6V7qwFWzHCS2mTBqU+KaO4FLpltA5Nt6CYEx6zmUlGfUF+8lA=="],
 
     "expo-location": ["expo-location@57.0.6", "", { "dependencies": { "@expo/image-utils": "^0.11.4" }, "peerDependencies": { "expo": "*" } }, "sha512-V9lcReOI9AANg9ITECzrTXUBW0lXjMaeWrf1zMDaJ+KeLkdkbIulEaDAuoj5PR5OZzAau7B8XAR54Z0JQnFBmw=="],
+
+    "expo-mail-composer": ["expo-mail-composer@57.0.1", "", { "peerDependencies": { "expo": "*" } }, "sha512-6AFey5bULnkE2ZQD20Q31eM8CpoRgkhOcT/4Y08jBHFSxxEy8aAzsbrzc/RpVT42E7I/HSL2JHdfr+HZ9tofrA=="],
 
     "expo-modules-autolinking": ["expo-modules-autolinking@57.0.9", "", { "dependencies": { "@expo/require-utils": "^57.0.4", "@expo/spawn-async": "^1.8.0", "chalk": "^4.1.0", "commander": "^7.2.0" }, "bin": { "expo-modules-autolinking": "bin/expo-modules-autolinking.js" } }, "sha512-lj2nsAKMMRLXSFnGgaaQrWJ2fdSpLPc/bca6Rkiw4g8zYPn7qX4MRUJgavvzm/hBrzvMnlhXVgJtidOGuwBh+w=="],
 

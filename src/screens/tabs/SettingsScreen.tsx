@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Card } from "@/components/ui/card";
@@ -6,11 +6,41 @@ import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
 import { Icon, InfoIcon } from "@/components/ui/icon";
 import { LogOut } from "lucide-react-native";
-import { useSession } from "@/services/auth/session";
+import { useSession, getSessionExpiry } from "@/services/auth/session";
 
 export default function SettingsScreen() {
   const navigation = useNavigation<any>();
   const { signOut, session } = useSession();
+  const [expiry, setExpiry] = useState<number | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<string>("Calculando...");
+
+  useEffect(() => {
+    async function fetchExpiry() {
+      const exp = await getSessionExpiry();
+      setExpiry(exp);
+    }
+    fetchExpiry();
+  }, []);
+
+  useEffect(() => {
+    if (!expiry) {
+      setTimeRemaining("Não configurado");
+      return;
+    }
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const diff = expiry - now;
+      if (diff <= 0) {
+        setTimeRemaining("Sessão expirada");
+        clearInterval(interval);
+      } else {
+        const minutes = Math.floor(diff / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        setTimeRemaining(`${minutes}m ${seconds}s restantes`);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [expiry]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -88,8 +118,14 @@ export default function SettingsScreen() {
           <Text className="text-[#666666] font-medium mb-1 px-1" size="xs">
             SESSÃO ATIVA
           </Text>
-          <Text className="text-[#4A4A4A] font-mono text-xs px-1">
+          <Text className="text-[#4A4A4A] font-mono text-xs px-1 mb-2">
             Token: {session.substring(0, 20)}...
+          </Text>
+          <Text className="text-[#666666] font-medium mb-1 px-1 mt-2" size="xs">
+            TEMPO EXPIRAÇÃO
+          </Text>
+          <Text className="text-[#1C1C1E] font-semibold text-sm px-1">
+            {timeRemaining}
           </Text>
         </Card>
       )}

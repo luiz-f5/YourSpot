@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useSession } from "@/services/auth/session";
+import { useSession, getSessionExpiry } from "@/services/auth/session";
 
 // Import screens
 import LoginScreen from "@/src/screens/auth/LoginScreen";
@@ -16,7 +16,22 @@ import NotFoundScreen from "@/src/screens/NotFoundScreen";
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
-  const { session } = useSession();
+  const { session, signOut } = useSession();
+
+  useEffect(() => {
+    if (!session) return;
+
+    const checkExpiry = async () => {
+      const expiry = await getSessionExpiry();
+      if (expiry && Date.now() >= expiry) {
+        await signOut();
+      }
+    };
+
+    checkExpiry();
+    const interval = setInterval(checkExpiry, 5000); // verifica a cada 5 segundos
+    return () => clearInterval(interval);
+  }, [session, signOut]);
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#F9F9F6" } }}>

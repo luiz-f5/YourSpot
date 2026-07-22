@@ -1,20 +1,21 @@
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import nestApi from "../apis/nest/nest";
+import { saveSessionExpiry, removeSessionExpiry } from "./session";
 
 export async function registerUser(email: string, password: string) {
-  
+
   const res = await nestApi.post("/auth/register", {email: email, password: password}, {
     validateStatus: () => true
   })
 
  const resOk = res.status >= 200 && res.status< 300;
-  
+
   if (!resOk) {
     throw new Error("Credenciais inválidas");
   }
 
-  return await res;
+  return res;
 }
 
 export async function signInFunction(email: string, password: string): Promise<string> {
@@ -25,7 +26,7 @@ export async function signInFunction(email: string, password: string): Promise<s
  })
 
  const resOk = res.status >= 200 && res.status< 300;
-  
+
   if (!resOk) {
     throw new Error("Credenciais inválidas");
   }
@@ -39,6 +40,10 @@ export async function signInFunction(email: string, password: string): Promise<s
     await SecureStore.setItemAsync("session", token);
   }
 
+  if (data.expiry_timestamp) {
+    await saveSessionExpiry(Number(data.expiry_timestamp));
+  }
+
   return token;
 }
 
@@ -48,4 +53,5 @@ export async function signOutFunction(): Promise<void> {
   } else {
     await SecureStore.deleteItemAsync("session");
   }
+  await removeSessionExpiry();
 }

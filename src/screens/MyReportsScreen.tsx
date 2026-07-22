@@ -1,20 +1,29 @@
-import React, { useCallback } from "react";
-import { View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, ScrollView, Image, TouchableOpacity, ActivityIndicator, Modal, FlatList } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Icon } from "@/components/ui/icon";
-import { ArrowLeft, MapPin, Calendar, Trash2 } from "lucide-react-native";
+import { ArrowLeft, MapPin, Calendar, Trash2, Mail, X } from "lucide-react-native";
 import { useReports } from "@/hooks/useReports";
+import { useContacts } from "@/hooks/useContacts";
+import * as FileSystem from "expo-file-system";
+import * as MailComposer from "expo-mail-composer";
 
 export default function MyReportsScreen() {
   const navigation = useNavigation<any>();
-  const { reports, loading, error, clearHistory, fetchReports } = useReports();
+  const { reports, loading, error, clearHistory, fetchReports, removeReport } = useReports();
+  const { contacts, fetchContacts } = useContacts();
+
+  const [selectedReport, setSelectedReport] = useState<any | null>(null);
+  const [showContactPicker, setShowContactPicker] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       fetchReports();
-    }, [fetchReports])
+      fetchContacts();
+    }, [fetchReports, fetchContacts])
   );
 
   const handleClearHistory = async () => {
@@ -22,6 +31,83 @@ export default function MyReportsScreen() {
       await clearHistory();
     } catch (err) {
       alert("Erro ao limpar histórico na API.");
+    }
+  };
+
+  const handleDeleteReport = async (id: number | string) => {
+    try {
+      await removeReport(id);
+      setSelectedReport(null);
+      alert("Denúncia removida com sucesso!");
+    } catch (err) {
+      alert("Erro ao remover denúncia.");
+    }
+  };
+
+  async function writeBase64ToFile(base64: string, filename: string) {
+    try {
+      let cleanBase64 = base64;
+      if (base64.includes(";base64,")) {
+        cleanBase64 = base64.split(";base64,")[1];
+      }
+      const cacheDir = (FileSystem as any).cacheDirectory || "";
+      const path = `${cacheDir}${filename}`;
+      await (FileSystem as any).writeAsStringAsync(path, cleanBase64, { encoding: (FileSystem as any).EncodingType.Base64 });
+      return path.startsWith("file://") ? path : `file://${path}`;
+    } catch (err) {
+      console.warn("Erro ao salvar imagem localmente:", err);
+      return null;
+    }
+  }
+
+  const sendEmailTo = async (recipientEmail: string) => {
+    if (!selectedReport) return;
+    setSendingEmail(true);
+    try {
+      const available = await MailComposer.isAvailableAsync();
+      if (!available) {
+        alert("Envio de e-mail não disponível neste dispositivo.");
+        setSendingEmail(false);
+        return;
+      }
+
+      const problemsStr = Array.isArray(selectedReport.problems)
+        ? selectedReport.problems.join(", ")
+        : selectedReport.problems || "Denúncia";
+
+      const subject = `Denúncia de Problema: ${problemsStr}`;
+
+      const bodyParts: string[] = [];
+      bodyParts.push(`Problema(s): ${problemsStr}`);
+      bodyParts.push(`Endereço: ${selectedReport.address}`);
+      if (selectedReport.observation) {
+        bodyParts.push(`Observação: ${selectedReport.observation}`);
+      }
+      const body = bodyParts.join("\n\n");
+
+      const attachments: string[] = [];
+      if (selectedReport.image) {
+        const filename = `report-${selectedReport.id || Date.now()}.jpg`;
+        const path = await writeBase64ToFile(selectedReport.image, filename);
+        if (path) {
+          attachments.push(path);
+        }
+      }
+
+      await MailComposer.composeAsync({
+        subject,
+        body,
+        recipients: [recipientEmail],
+        attachments: attachments.length ? attachments : undefined,
+      });
+
+      setShowContactPicker(false);
+      setSelectedReport(null);
+    } catch (err) {
+      console.warn("Erro ao enviar e-mail:", err);
+      alert("Não foi possível abrir o composer de e-mail.");
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -65,7 +151,12 @@ export default function MyReportsScreen() {
               </TouchableOpacity>
 
               {reports.map((item) => (
-                <View key={item.id} className="bg-white rounded-2xl border border-zinc-200/50 mb-4 overflow-hidden flex-row mx-6">
+                <TouchableOpacity
+                  key={item.id}
+                  activeOpacity={0.8}
+                  onPress={() => setSelectedReport(item)}
+                  className="bg-white rounded-2xl border border-zinc-200/50 mb-4 overflow-hidden flex-row mx-6"
+                >
                   {item.image ? (
                     <Image source={{ uri: item.image }} className="w-[100px] h-full bg-zinc-200" style={{ minHeight: 110 }} />
                   ) : null}
@@ -77,7 +168,7 @@ export default function MyReportsScreen() {
                       </Text>
                     </View>
 
-                    <Text className="text-sm font-bold text-zinc-900 mb-1.5">
+                    <Text className="text-sm font-bold text-zinc-900 mb-1.5" numberOfLines={1}>
                       {Array.isArray(item.problems) ? item.problems.join(", ") : item.problems || "Problema Geral"}
                     </Text>
 
@@ -90,12 +181,147 @@ export default function MyReportsScreen() {
                       <Text className="text-[11px] text-zinc-500 italic mt-0.5" numberOfLines={2}>Obs: {item.observation}</Text>
                     ) : null}
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
             </>
           )}
         </ScrollView>
       )}
+
+      {/* MODAL DE DETALHES DA DENÚNCIA */}
+      {selectedReport && (
+        <Modal
+          visible={!!selectedReport}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setSelectedReport(null)}
+        >
+          <View className="flex-1 bg-black/60 justify-end">
+            <View className="bg-white rounded-t-[32px] p-6 pb-10 max-h-[90%]">
+              {/* HEADER DO MODAL */}
+              <View className="flex-row justify-between items-center mb-4">
+                <Heading size="lg" className="text-zinc-900 font-bold">Detalhes da Denúncia</Heading>
+                <TouchableOpacity onPress={() => setSelectedReport(null)} className="p-1">
+                  <Icon as={X} size="md" className="text-zinc-500" />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {selectedReport.image ? (
+                  <Image
+                    source={{ uri: selectedReport.image }}
+                    className="w-full h-48 rounded-2xl bg-zinc-200 mb-4"
+                    resizeMode="cover"
+                  />
+                ) : null}
+
+                <View className="mb-4">
+                  <Text className="text-xs font-bold text-zinc-500 uppercase">Problema(s)</Text>
+                  <Text className="text-base font-bold text-zinc-900 mt-1">
+                    {Array.isArray(selectedReport.problems)
+                      ? selectedReport.problems.join(", ")
+                      : selectedReport.problems || "Problema Geral"}
+                  </Text>
+                </View>
+
+                <View className="mb-4">
+                  <Text className="text-xs font-bold text-zinc-500 uppercase">Endereço</Text>
+                  <View className="flex-row items-center mt-1">
+                    <Icon as={MapPin} size="xs" className="text-red-600 mr-1.5" />
+                    <Text className="text-sm font-semibold text-zinc-700 flex-1">{selectedReport.address}</Text>
+                  </View>
+                </View>
+
+                {selectedReport.observation ? (
+                  <View className="mb-6">
+                    <Text className="text-xs font-bold text-zinc-500 uppercase">Observações</Text>
+                    <Text className="text-sm italic text-zinc-600 mt-1">{selectedReport.observation}</Text>
+                  </View>
+                ) : null}
+
+                {/* BOTÕES DE AÇÃO */}
+                <View className="flex-row gap-3">
+                  <TouchableOpacity
+                    onPress={() => setShowContactPicker(true)}
+                    activeOpacity={0.8}
+                    className="flex-1 flex-row items-center justify-center bg-zinc-900 p-4 rounded-xl"
+                  >
+                    <Icon as={Mail} size="sm" className="text-white mr-2" />
+                    <Text className="text-white font-bold text-sm">Enviar por E-mail</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => handleDeleteReport(selectedReport.id)}
+                    activeOpacity={0.8}
+                    className="flex-row items-center justify-center bg-red-50 border border-red-200 px-4 rounded-xl"
+                  >
+                    <Icon as={Trash2} size="sm" className="text-red-600" />
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {/* SELECIONADOR DE CONTATOS */}
+      <Modal
+        visible={showContactPicker}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowContactPicker(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-center items-center p-6">
+          <View className="bg-white w-full max-h-[80%] rounded-[24px] p-6 shadow-xl border border-zinc-100">
+            <View className="flex-row justify-between items-center mb-4">
+              <Heading size="md" className="text-zinc-900 font-bold">Selecione o Destinatário</Heading>
+              <TouchableOpacity onPress={() => setShowContactPicker(false)} className="p-1">
+                <Icon as={X} size="md" className="text-zinc-500" />
+              </TouchableOpacity>
+            </View>
+
+            {sendingEmail ? (
+              <View className="py-8 justify-center items-center">
+                <ActivityIndicator size="large" color="#1C1C1E" />
+                <Text className="mt-3 font-semibold text-zinc-600">Preparando e-mail...</Text>
+              </View>
+            ) : contacts.length === 0 ? (
+              <View className="py-8 items-center">
+                <Text className="text-zinc-500 text-sm font-semibold text-center mb-4">Você precisa cadastrar contatos primeiro.</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowContactPicker(false);
+                    setSelectedReport(null);
+                    navigation.navigate("Contacts");
+                  }}
+                  className="bg-zinc-900 px-4 py-2 rounded-lg"
+                >
+                  <Text className="text-white font-bold text-sm">Ir para Contatos</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <FlatList
+                data={contacts}
+                keyExtractor={(item) => String(item.id)}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    onPress={() => sendEmailTo(item.email)}
+                    activeOpacity={0.7}
+                    className="p-4 border-b border-zinc-100 flex-row items-center justify-between"
+                  >
+                    <View>
+                      <Text className="text-sm font-bold text-zinc-900">{item.name}</Text>
+                      <Text className="text-xs text-zinc-500 font-medium mt-0.5">{item.email}</Text>
+                    </View>
+                    <Icon as={Mail} size="sm" className="text-zinc-400" />
+                  </TouchableOpacity>
+                )}
+                contentContainerStyle={{ paddingBottom: 10 }}
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

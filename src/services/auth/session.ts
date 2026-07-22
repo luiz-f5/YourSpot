@@ -32,3 +32,29 @@ export async function removeSession() {
     await SecureStore.deleteItemAsync("session");
   }
 }
+
+export async function saveSessionExpiry(timestamp: number) {
+  if (Platform.OS === "web") {
+    localStorage.setItem("session_expiry", String(timestamp));
+  } else {
+    await SecureStore.setItemAsync("session_expiry", String(timestamp));
+  }
+}
+
+export async function getSessionExpiry(): Promise<number | null> {
+  let val: string | null = null;
+  if (Platform.OS === "web") {
+    val = localStorage.getItem("session_expiry");
+  } else {
+    val = await SecureStore.getItemAsync("session_expiry");
+  }
+  return val ? Number(val) : null;
+}
+
+export async function removeSessionExpiry() {
+  if (Platform.OS === "web") {
+    localStorage.removeItem("session_expiry");
+  } else {
+    await SecureStore.deleteItemAsync("session_expiry");
+  }
+}
